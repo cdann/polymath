@@ -1,38 +1,95 @@
 #include "Poly.hpp"
 # include "Parser.hpp"
 #include <iostream>
+#include <complex>
+#include <unistd.h>
 
-Poly::Poly(){
+
+
+
+Poly::Poly(): _a(0), _b(0), _c(0)
+{
 }
 
 Poly::~Poly(){}
 
-Poly::Poly(Parser parse){
-	if (print_first_part(parse) == true)
+Poly::Poly(Parser parse): _a(0), _b(0), _c(0)
+{
+	//if (Parser::getDebug())
+	//	Poly::debug = true;
+	if (this->print_first_part(parse) == true)
 	{
-		calculate(parse);
-		print_result();
+		this->calculate(parse);
+		this->print_result();
+		if (Poly::factor)
+			this->show_factor();
 	}
+}
+
+void 	Poly::show_factor()
+{
+	if (_delta > 0)
+	{
+		std::cout << "factor form: ";
+		std::cout << _a <<" * (X ";
+		this->ope('-', _X1);
+		std::cout << ") * (X ";
+		this->ope('-', _X2);
+		std::cout << ") = 0" << std::endl;
+
+	}
+	if (_delta == 0 && _degree  == 2)
+	{
+		std::cout << "factor form: ";
+		std::cout << _a <<" * (X ";
+		this->ope('-', _X1);
+		std::cout << ")" << std::endl;
+	}
+}
+
+
+int		Poly::getNewDegree(std::map<int, double> po)
+{
+	int deg;
+
+	deg = 0;
+	for (std::map<int,double>::iterator it=po.begin(); it!=po.end(); ++it)
+	{
+		if (it->first > deg && it->second != 0)
+			deg = it->first;
+	}
+	return deg;
 }
 
 
 bool Poly::print_first_part(Parser parse)
 {
 	std::map<int, double>	po;
-	int						deg;
 
 	po = parse.getPoly();
 	std::cout << "Reduced form: ";
 	for (std::map<int,double>::iterator it=po.begin(); it!=po.end(); ++it)
 	{
-		if (it != po.begin())
-			std::cout << " + ";
-		std::cout << it->second << "*X^" << it->first;
+		if (it->second != 0)
+		{
+			if (it == po.begin())
+				std::cout << it->second;
+			else
+				this->ope('+', it->second);
+			if (!(Poly::simpleForm && it->first == 0))
+			{
+				std::cout << "*X";
+				if (!(Poly::simpleForm && it->first == 1))
+					std::cout << "^" << it->first;
+			}
+		}
 	}
-	std::cout << std::endl;
-	deg = parse.getDegree();
-	std::cout << "Polynomial degree: " << deg << std::endl;
-	if (deg <= 2)
+	std::cout << " = 0" << std::endl;
+	this->_degree = parse.getDegree();
+	if (po[this->_degree] == 0)
+		this->_degree = this->getNewDegree(po);
+	std::cout << "Polynomial degree: " << this->_degree << std::endl;
+	if (this->_degree <= 2)
 		return true;
 	std::cout << "The polynomial degree is strictly greater than 2, I can't solve." << std::endl;
 	return false;
@@ -40,6 +97,7 @@ bool Poly::print_first_part(Parser parse)
 
 void Poly::calculate(Parser parse)
 {
+
 	std::map<int, double>	po = parse.getPoly();
 
 	if (po.find(0) != po.end())
@@ -49,19 +107,50 @@ void Poly::calculate(Parser parse)
 	if (po.find(2) != po.end())
 		_a = parse[2];
 
-	this->_delta = (_b * _b) - (4 * _a * _c);
-	if (this->_delta > 0)
+
+	if (this->_degree == 2 && _a != 0)
 	{
-		_X1 = (-_b - this->Sqrt(_delta))/ (2 * _a);
-		_X2 = (-_b + this->Sqrt(_delta))/ (2 * _a);
+		this->_delta = (_b * _b) - (4 * _a * _c);
+//	std::cout << "#####poum: " << this->Sqrt(this->_delta) << std::endl;
+		if (this->_delta > 0)
+		{
+			_X1 = (-_b - this->Sqrt(_delta))/ (2 * _a);
+			_X2 = (-_b + this->Sqrt(_delta))/ (2 * _a);
+		}
+		 else if (this->_delta == 0)
+			_X1 = (-_b)/ (2 * _a);
+		else
+			this->imagine();
+
 	}
-	if (this->_delta == 0)
-		_X1 = (-_b)/ (2 * _a);
+	else
+	{
+		_X1 = (-_c)/ _b;
+	}
+}
+
+void Poly::imagine()
+{
+	double im = this->Sqrt(_delta);
+
+	_X2 = -_b/2*_a ;
+	_X1 = im /2*_a;
+
+
 }
 
 void Poly::print_result()
 {
-	if (this->_delta > 0)
+		//std::cout << "_a = " << _a << " _b = " << _b << std::endl;
+
+	if (this->_degree == 0 || (_a == 0 && _b == 0))
+	{
+		if ( _c != 0)
+			std::cout << "No real number can be solution for this equation." << std::endl;
+		else
+			std::cout << "Every real number can be solution of this equation." << std::endl;
+	}
+	else if (this->_delta > 0)
 	{
 		std::cout << "Discriminant is strictly positive, the two solutions are:" << std::endl;
 		std::cout << _X1<< std::endl;
@@ -69,14 +158,38 @@ void Poly::print_result()
 	}
 	else if (this->_delta == 0)
 	{
-		std::cout << "Discriminant is strictly equal to 0, the solution is:" << std::endl;
+		std::cout << "The solution is:" << std::endl;
 		std::cout << _X1<< std::endl;
-
 	}
 	else
 	{
-		std::cout << "Discriminant is strictly negative, their is no solution." << std::endl;
+		std::cout << "Discriminant is strictly negative, the two solutions are:" << std::endl;
+		std::cout << _X2;
+		this->ope('+', _X1);
+		std::cout << "i" << std::endl;
+		std::cout << _X2;
+		this->ope('-', _X1);
+		std::cout << "i" << std::endl;
+
+		//(-b+isqrt(-delta))/2a
 	}
+}
+
+void Poly::ope(char ope, double di)
+{
+	if (di >= 0)
+		std::cout << ope;
+	else if (ope == '-')
+	{
+		std::cout << "+";
+		di *= -1;
+	}
+	else if (ope == '+')
+	{
+		std::cout << "-";
+		di *= -1;
+	}
+	std::cout << " " << di;
 }
 
 double Poly::Sqrt(double X)
@@ -89,6 +202,8 @@ double Poly::Sqrt(double X)
   if(X==0.0) {
      return 0.0;
   } else {
+  	if (X < 0)
+  		X *= -1;
      M=1.0;
      XN=X;
      while(XN>=2.0) {
@@ -105,7 +220,28 @@ double Poly::Sqrt(double X)
         A=A*(1.0+0.5*B);
         B=0.25*(3.0+B)*B*B;
      } while(B>=1.0E-15);
-     //std::cout << X << " vs " << A*M << std::endl;
      return A*M;
   }
 }
+
+//----------------------------------------------------------------//
+//                             Options                            //
+//----------------------------------------------------------------//
+
+////bool Poly::debug = false;
+bool Poly::simpleForm = false;
+bool Poly::factor = false;
+
+
+void				Poly::setSimpleForm()
+{
+	Poly::simpleForm = true;
+	//std::cout << "Les potes" << std::endl;
+}
+
+void				Poly::setFactor()
+{
+	Poly::factor = true;
+	//std::cout << "Les potes" << std::endl;
+}
+

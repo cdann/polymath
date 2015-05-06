@@ -1,12 +1,26 @@
 #include "Parser.hpp"
+#include "Poly.hpp"
 #include <iostream>
 #include <stdlib.h>
+
+//bool Parser::debug = false;
 
 Parser::Parser(): degree(0)
 {}
 
 Parser::~Parser()
 {}
+
+//void Parser::setDebug()
+//{
+//	Parser::debug = true;
+//}
+//
+//bool Parser::getDebug()
+//{
+//	return Parser::debug;
+//}
+
 
 Parser::Parser(std::string equa): degree(0)
 {
@@ -64,12 +78,16 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
 				p = str.substr(found, str.length() - found);
 			}
 			else
+			{
+				Poly::setSimpleForm();
 				p = "1";
+			}
 		}
   	}
   	else
   	{
   		p = "0";
+  		Poly::setSimpleForm();
   		n = str.substr(0, str.length());
   	}
 	return addMember(n, p, b);

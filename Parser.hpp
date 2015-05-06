@@ -12,6 +12,8 @@ public:
 
 	void 					parse(std::string);
 	void 					test(void);
+	static void				setDebug(void);
+	static bool				getDebug(void);
 
 	int						getDegree();
 	std::map<int,double>	getPoly();
@@ -24,6 +26,8 @@ private:
 	int extractMember(std::string, bool);// si le bool est a 0 premiere partie de l'equation sinon 2eme partie
 	int addMember(std::string,std::string, bool);// si le bool est a 0 premiere partie de l'equation sinon 2eme partie
 	void splitByPart(std::string);
+
+	static bool				debug;
 
 };
 
