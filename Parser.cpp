@@ -60,6 +60,7 @@ void Parser::splitByPart(std::string str)
 }
 int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere partie de l'equation sinon 2eme partie
 {
+	//std::cout << str;
 	//n*X^p
 	std::string n;
 	std::string p;
@@ -86,15 +87,27 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
   	}
   	else
   	{
-  		p = "0";
+  		found = str.find("X");
+
+
+  		if (found != std::string::npos)
+  		{
+  			n = "1";
+  			p = str.substr(found +2, str.length());
+  		}
+  		else
+  		{
+	  		p = "0";
+  			n = str;
+  		}
   		Poly::setSimpleForm();
-  		n = str.substr(0, str.length());
   	}
 	return addMember(n, p, b);
 }
 
 int Parser::addMember(std::string n,std::string p, bool b)
 {
+
 	//n*X^p
 	double n1;
 	int		p1;

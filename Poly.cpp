@@ -164,10 +164,10 @@ void Poly::print_result()
 	else
 	{
 		std::cout << "Discriminant is strictly negative, the two solutions are:" << std::endl;
-		std::cout << _X2;
+		this->ope(' ', _X2);
 		this->ope('+', _X1);
 		std::cout << "i" << std::endl;
-		std::cout << _X2;
+		this->ope(' ', _X2);
 		this->ope('-', _X1);
 		std::cout << "i" << std::endl;
 
@@ -179,17 +179,20 @@ void Poly::ope(char ope, double di)
 {
 	if (di >= 0)
 		std::cout << ope;
-	else if (ope == '-')
+	else if (ope == '-' && di != 0)
 	{
 		std::cout << "+";
 		di *= -1;
 	}
-	else if (ope == '+')
+	else if (ope == '+' && di != 0)
 	{
 		std::cout << "-";
 		di *= -1;
 	}
-	std::cout << " " << di;
+	if (di != 0)
+	{
+		std::cout << " " << di;
+	}
 }
 
 double Poly::Sqrt(double X)
