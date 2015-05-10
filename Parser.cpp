@@ -3,7 +3,17 @@
 #include <iostream>
 #include <stdlib.h>
 
-//bool Parser::debug = false;
+bool Parser::debug = false;
+
+void Parser::setDebug()
+{
+	Parser::debug = true;
+}
+
+bool Parser::getDebug()
+{
+	return Parser::debug;
+}
 
 Parser::Parser(): degree(0)
 {}
@@ -11,15 +21,6 @@ Parser::Parser(): degree(0)
 Parser::~Parser()
 {}
 
-//void Parser::setDebug()
-//{
-//	Parser::debug = true;
-//}
-//
-//bool Parser::getDebug()
-//{
-//	return Parser::debug;
-//}
 
 
 Parser::Parser(std::string equa): degree(0)
@@ -58,6 +59,7 @@ void Parser::splitByPart(std::string str)
 	member = str.substr(c, i - c);
 	this->extractMember(member, b);
 }
+
 int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere partie de l'equation sinon 2eme partie
 {
 	//std::cout << str;
@@ -107,8 +109,6 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
 
 int Parser::addMember(std::string n,std::string p, bool b)
 {
-
-	//n*X^p
 	double n1;
 	int		p1;
 
@@ -117,6 +117,8 @@ int Parser::addMember(std::string n,std::string p, bool b)
 		n = n.erase (1, 1);
 	n1 = std::strtod(n.c_str(), NULL);
 	(b) ? n1 *= -1 : n1 ;
+	if (Parser::debug)
+		std::cout << "=> X^" << p1 << " * (" << this->p[p1] << " + " << n1 << ")" << std::endl;
 	this->p[p1] += n1;
 	(p1 > this->degree) ? this->degree = p1 : this->degree;
 	return p1;

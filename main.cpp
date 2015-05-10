@@ -22,15 +22,13 @@ bool	put_option(int argc, char const *argv[])
 		}
 		switch (argv[i][1])
 		{
-			//case 'd':
-			//	Parser::setDebug = true;
-			//	break;
-			//case
+			case 'd':
+				Parser::setDebug();
+				break;
 
 			case 'f':
 				Poly::setFactor();
 				break;
-			//case
 		}
 	}
 	return true;

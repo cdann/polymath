@@ -22,7 +22,9 @@ Poly::Poly(Parser parse): _a(0), _b(0), _c(0)
 		this->calculate(parse);
 		this->print_result();
 		if (Poly::factor)
+		{
 			this->show_factor();
+		}
 	}
 }
 
@@ -38,7 +40,7 @@ void 	Poly::show_factor()
 		std::cout << ") = 0" << std::endl;
 
 	}
-	if (_delta == 0 && _degree  == 2)
+	else if (_delta == 0 && _degree  == 2)
 	{
 		std::cout << "factor form: ";
 		std::cout << _a <<" * (X ";
@@ -166,10 +168,10 @@ void Poly::print_result()
 		std::cout << "Discriminant is strictly negative, the two solutions are:" << std::endl;
 		this->ope(' ', _X2);
 		this->ope('+', _X1);
-		std::cout << "i" << std::endl;
+		std::cout << " * i" << std::endl;
 		this->ope(' ', _X2);
 		this->ope('-', _X1);
-		std::cout << "i" << std::endl;
+		std::cout << " * i" << std::endl;
 
 		//(-b+isqrt(-delta))/2a
 	}
