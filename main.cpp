@@ -29,6 +29,14 @@ bool	put_option(int argc, char const *argv[])
 			case 'f':
 				Poly::setFactor();
 				break;
+
+			case 's':
+				Poly::setTableSign();
+				break;
+
+			case 'v':
+				Poly::setVerbose();
+				break;
 		}
 	}
 	return true;
@@ -36,8 +44,11 @@ bool	put_option(int argc, char const *argv[])
 
 void usage(char const *name)
 {
-	std::cout << "usage: " << name << "monequation"<< std::endl;
+	std::cout << "usage: " << name << " monequation"<< std::endl;
 	std::cout << "options: -f to factor form"<< std::endl;
+	std::cout << "options: -v to see a b c and delta"<< std::endl;
+	std::cout << "options: -d to see the operation in parsing"<< std::endl;
+	std::cout << "options: -s to see the table of sign"<< std::endl;
 
 
 }
@@ -53,9 +64,10 @@ int main(int argc, char const *argv[])
 			usage(argv[0]);
 			return 0;
 		}
-		p.parse(argv[argc-1]);
+		if (p.parse(argv[argc-1]))
+			Poly calcul(p);
 		//p.test();
-		Poly calcul(p);
+
 	}
 	else
 	{

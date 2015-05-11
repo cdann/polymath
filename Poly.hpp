@@ -12,6 +12,8 @@ public:
 	~Poly();
 	static void				setSimpleForm();
 	static void				setFactor();
+	static void				setTableSign();
+	static void				setVerbose();
 
 
 private:
@@ -31,10 +33,13 @@ private:
 	double Sqrt(double X);
 	void imagine();
 	void show_factor();
+	void show_verb();
+	void show_TableSign();
 	void ope(char ope, double di);
 	static bool				simpleForm;
+	static bool				verbose;
 	static bool				factor;
-	//static bool				debug;
+	static bool				TableSign;
 
 };
 

@@ -10,7 +10,7 @@ public:
 	~Parser();
 	Parser();
 
-	void 					parse(std::string);
+	bool 					parse(std::string);
 	void 					test(void);
 	static void				setDebug(void);
 	static bool				getDebug(void);
@@ -22,11 +22,13 @@ public:
 private:
 	int 					degree;
 	std::map<int,double>	p;
+	bool					error;
 
 	int extractMember(std::string, bool);// si le bool est a 0 premiere partie de l'equation sinon 2eme partie
 	int addMember(std::string,std::string, bool);// si le bool est a 0 premiere partie de l'equation sinon 2eme partie
 	void splitByPart(std::string);
-
+	bool isdigit(std::string);
+	std::string trim(std::string str);
 	static bool				debug;
 
 };

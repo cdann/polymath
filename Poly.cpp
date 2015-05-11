@@ -7,25 +7,100 @@
 
 
 
-Poly::Poly(): _a(0), _b(0), _c(0)
+Poly::Poly(): _delta(0), _a(0), _b(0), _c(0)
 {
 }
 
 Poly::~Poly(){}
 
-Poly::Poly(Parser parse): _a(0), _b(0), _c(0)
+Poly::Poly(Parser parse):  _delta(0), _a(0), _b(0), _c(0)
 {
 	//if (Parser::getDebug())
 	//	Poly::debug = true;
 	if (this->print_first_part(parse) == true)
 	{
+
 		this->calculate(parse);
+		if (Poly::verbose)
+			this->show_verb();
 		this->print_result();
 		if (Poly::factor)
-		{
 			this->show_factor();
-		}
+		if (Poly::TableSign)
+			this->show_TableSign();
 	}
+}
+
+void 	Poly::show_verb()
+{
+	//std::cout << " _degree : " << _degree;
+	std::cout << "In ax^2 + bx + c" << std::endl;
+	std::cout << " c =  " << _c << std::endl;
+	std::cout << " b =  " << _b << std::endl;
+	std::cout << " a =  " << _a << std::endl << std::endl;
+	//this->_delta = (_b * _b) - (4 * _a * _c);
+	if (_degree >= 2)
+		std::cout << " delta = " << _b << " ^2 - 4 * " << _a << " * " << _c << " = " << _delta << std::endl;
+	std::cout << " racine 1 = " << _X1 << std::endl;
+	if (_delta != 0)
+		std::cout << " racine 2 = " << _X2 << std::endl<< std::endl;
+
+
+}
+
+
+void 	Poly::show_TableSign()
+{
+	std::string line;
+	char sign;
+	char sign2;
+	double d1;
+	double d2;
+
+	if (this->_a != 0)
+		sign = (this->_a >= 0) ? '+' : '-';
+	else
+		sign = (this->_b >= 0) ? '+' : '-';
+	sign2 = (sign == '-') ? '+' : '-';
+
+	if (_degree == 1)
+	{
+		line = "------------------------------\n";
+		std::cout << "X0 = " << (-1 * _c) / _b << std::endl;
+
+		std::cout << line;
+		std::cout << "|   x  | -inf   | X0 |   +inf |"<< std::endl;
+		std::cout << line;
+		std::cout << "| f(x) | " << sign << "      |  0 |     " << sign << "  |"<< std::endl;
+		std::cout << line;
+	}
+	 else if (_delta != 0)
+	{
+		line = "-----------------------------------------\n";
+		d1 = (this->_X1 < this->_X2) ? this->_X1 : this->_X2;
+		d2 = (d1 == this->_X2) ? this->_X1 : this->_X2;
+
+		std::cout << "X1 = " << _X1 << std::endl;
+		std::cout << "X2 = " << _X2 << std::endl;
+		std::cout << line;
+		std::cout << "|   x  | -inf    |  X1  |  X2  |    +inf |"<< std::endl;
+		std::cout << line;
+		std::cout << "| f(x) |   " << sign << "        |   " << sign2 << "   |        " << sign << "   |"<< std::endl;
+		std::cout << line;
+	}
+	else
+	{
+		line = "-----------------------------\n";
+
+		std::cout << "X0 = " << _X1 << std::endl;
+		std::cout << line;
+		std::cout << "|   x  | -inf   | X0 |   +inf |"<< std::endl;
+		std::cout << line;
+		std::cout << "| f(x) | " << sign << "      |  0 |     " << sign << "  |"<< std::endl;
+		std::cout << line;
+	}
+	std::cout << std::endl;
+
 }
 
 void 	Poly::show_factor()
@@ -37,7 +112,7 @@ void 	Poly::show_factor()
 		this->ope('-', _X1);
 		std::cout << ") * (X ";
 		this->ope('-', _X2);
-		std::cout << ") = 0" << std::endl;
+		std::cout << ") = 0" << std::endl << std::endl;
 
 	}
 	else if (_delta == 0 && _degree  == 2)
@@ -45,7 +120,7 @@ void 	Poly::show_factor()
 		std::cout << "factor form: ";
 		std::cout << _a <<" * (X ";
 		this->ope('-', _X1);
-		std::cout << ")" << std::endl;
+		std::cout << ")" << std::endl << std::endl;
 	}
 }
 
@@ -113,7 +188,7 @@ void Poly::calculate(Parser parse)
 	if (this->_degree == 2 && _a != 0)
 	{
 		this->_delta = (_b * _b) - (4 * _a * _c);
-//	std::cout << "#####poum: " << this->Sqrt(this->_delta) << std::endl;
+
 		if (this->_delta > 0)
 		{
 			_X1 = (-_b - this->Sqrt(_delta))/ (2 * _a);
@@ -129,6 +204,10 @@ void Poly::calculate(Parser parse)
 	{
 		_X1 = (-_c)/ _b;
 	}
+	if (_X1 == -0)
+		_X1 = 0;
+	if (_X2 == -0)
+		_X2 = 0;
 }
 
 void Poly::imagine()
@@ -233,8 +312,9 @@ double Poly::Sqrt(double X)
 //                             Options                            //
 //----------------------------------------------------------------//
 
-////bool Poly::debug = false;
+bool Poly::verbose = false;
 bool Poly::simpleForm = false;
+bool Poly::TableSign = false;
 bool Poly::factor = false;
 
 
@@ -244,9 +324,22 @@ void				Poly::setSimpleForm()
 	//std::cout << "Les potes" << std::endl;
 }
 
+void				Poly::setVerbose()
+{
+	Poly::verbose = true;
+	//std::cout << "Les potes" << std::endl;
+}
+
 void				Poly::setFactor()
 {
 	Poly::factor = true;
 	//std::cout << "Les potes" << std::endl;
 }
+
+void				Poly::setTableSign()
+{
+	Poly::TableSign = true;
+	//std::cout << "Les potes" << std::endl;
+}
+
 
