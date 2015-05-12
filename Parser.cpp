@@ -67,7 +67,7 @@ void Parser::splitByPart(std::string str)
 		}
 		else if (*it != ' ' && s == false)
 		{
-			std::cout << "&";
+			//std::cout << "&";
 			s = true;
 		}
 			//std::cout << "%";
@@ -110,17 +110,6 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
 				Poly::setSimpleForm();
 				p = "1";
 			}
-
-			//if (str[found + 2] == '^' && (found + 3) < str.length())
-			//{
-			//	found += 3;
-			//	p = str.substr(found, str.length() - found);
-			//}
-			//else
-			//{
-			//	Poly::setSimpleForm();
-			//	p = "1";
-			//}
 		}
   	}
   	else
@@ -182,7 +171,8 @@ bool Parser::isdigit(std::string str)
 
 	for (std::string::iterator it=str.begin(); it!=str.end(); ++it)
 	{
-		in = true;
+		if ((*it >= '0' && *it <= '9') && in == false)
+			in = true;
 		if (!((*it >= '0' && *it <= '9') || (*it == '.' && !point) || (*it == '-' && it == str.begin()) || (*it == '+' && it == str.begin()) || *it == ' '))
 			return false;
 		point = (*it == '.') ? true : point;
