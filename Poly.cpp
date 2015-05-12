@@ -150,7 +150,7 @@ bool Poly::print_first_part(Parser parse)
 		if (it->second != 0)
 		{
 			if (it == po.begin())
-				std::cout << it->second;
+				std::cout << it->second << " ";
 			else
 				this->ope('+', it->second);
 			if (!(Poly::simpleForm && it->first == 0))
