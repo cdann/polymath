@@ -35,37 +35,41 @@ bool  Parser::parse(std::string str)
 	return !this->error;
 }
 
-bool  Parser::isonlyspace(std::string str)
-{
-	for (std::string::iterator it=str.begin(); it!=str.end(); ++it)
-	{
-		if ( *it != ' ')
-			return false;
-	}
-	return true;
-}
 
 void Parser::splitByPart(std::string str)
 {
-	 //a*X^2 + b*X^1 + c*X = d*X
 	std::string member;
 	int i = 0;
 	int c = 0;
 	bool b = false;
 	bool s = false;
+	bool sign = false;
 
 	for (std::string::iterator it=str.begin(); it!=str.end(); ++it)
 	{
 
 		if ((*it == '+' || *it == '-' || *it == '=' ) && (i - c > 1 || s == true))
 		{
-			//std::cout << "##DEBUG i - c :" << i - c << " s : " << s << std::endl;
 			member = str.substr(c, i - c);
-			//std::cout << "->" << member << " " << s << std::endl;
 
-			c = i;
-			if (s == true || !this->isonlyspace(member))
+			if ((s == true || !Tester.isonlyspace(member)) && !Tester.isonlyspace(str.substr(c + 1, i - c - 1)))
 				this->extractMember(member, b);
+			if (Tester.isonlyspace(str.substr(c + 1, i - c - 1)) && (*it == '+' || *it == '-'))
+			{
+				if (sign == false)
+					sign = true;
+				else
+				{
+					std::cout << "too many operators (+++ or ---)" << std::endl;
+					this-> error = true;
+				}
+			}
+			else
+			{
+				if (sign == true)
+					sign = false;
+				c = i;
+			}
 			if (*it == '=')
 			{
 				s = false;
@@ -79,55 +83,46 @@ void Parser::splitByPart(std::string str)
 			}
 		}
 		else if (*it != ' ' && s == false)
-		{
 			s = true;
-		}
 
 		i++;
 	}
 	member = str.substr(c, i - c);
 	this->extractMember(member, b);
+	if  (b == false)
+	{
+		std::cout << "their is an error in the entrie, without equal this is not an equation" << std::endl;
+					this-> error = true;
+	}
 }
 
 int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere partie de l'equation sinon apres le egal
 {
-	//std::cout << " ##DEBUG :" << str << std::endl;
-
-	//std::cout << str;
-	//n*X^p
 	std::string n;
 	std::string p;
 
 	std::size_t found = str.find("*");
 	if (found!=std::string::npos)
 	{
-		//std::cout << "bim " << found;
 		n = str.substr(0, found);
 		if (((found + 1) < str.length() && str[found + 1] == ' '))
 			str = str.erase(found + 1, 1);
-		//std::cout << "POUUUUF" << str << std::endl;
 		if (((found + 1) < str.length() && str[found + 1] == 'X'))
 		{
 			found += 2;
 			while (str[found]  == ' ' && found != str.length())
 				found ++;
-			//std::cout << "POUUUUF " << found <<" " << str[found] << std::endl;
   			if (str[found]  == '^')
   			{
   				found++;
   				p = str.substr(found, str.length() - found);
-				//std::cout << "passe ici st: " << p << std::endl;
   			}
   			else if (found == str.length())
 			{
-				//std::cout << "passe la st: " << p << std::endl;
 				Poly::setSimpleForm();
 				p = "1";
 			}
-			//else
-			//{
-			//	std::cout << "ERROR " << found <<" " << str[found];
-			//}
+
 		}
   	}
   	else
@@ -138,11 +133,10 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
   		if (found != std::string::npos)
   		{
   			n = (found == 0) ? "1" : str.substr(0, found);
-	  		//std::cout << " str : " <<str << " / " << found +2 << " size : " << str.length();
   			p = str.substr(found +2, str.length());
   			if ((found = p.find("^")) != std::string::npos)
   				p = p.substr(found +1, p.length());
-  			if (this->isonlyspace(p))
+  			if (Tester.isonlyspace(p))
   				p = "1";
   		}
   		else
@@ -152,7 +146,6 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
   		}
   		Poly::setSimpleForm();
   	}
-	//std::cout << " %%%%DEBUG2 : nb :" << n << " pow :" << p << std::endl;
 	int ret = addMember(n, p, b);
 	if (ret == -1)
 		std::cout << str;
@@ -160,73 +153,27 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
 	return (ret);
 }
 
-std::string Parser::trim(std::string str)
-{
-	unsigned int end = 0;
-	unsigned int start = 0;
-	std::string ret;
-
-	for (std::string::iterator it=str.begin(); it!=str.end(); it++)
-	{
-		if (*it == ' ')
-			start++;
-		else
-			break;
-	}
-	for (std::string::reverse_iterator it=str.rbegin(); it!=str.rend(); it++)
-	{
-		if (*it == ' ')
-			end++;
-		else
-			break;
-	}
-	ret = str.substr(start, str.length() - end - start);
-	return (ret);
-}
-
-bool Parser::isdigit(std::string str)
-{
-	bool point = false;
-	bool in = false;
-
-	for (std::string::iterator it=str.begin(); it!=str.end(); ++it)
-	{
-		if (in == false && (*it >= '0' && *it <= '9'))
-			in = true;
-		if (!((*it >= '0' && *it <= '9') || (*it == '.' && !point) || (*it == '-' && it == str.begin()) || (*it == '+' && it == str.begin()) || *it == ' '))
-			return false;
-		if (*it == ' ' && *(it - 1) != '-' && *(it - 1) != '+')
-			return false;
-		point = (*it == '.') ? true : point;
-	}
-	if (!in)
-		return false;
-	return true;
-}
-
 int Parser::addMember(std::string n,std::string p, bool b)
 {
 	double n1;
 	int		p1;
-		//std::cout << "--> DEBUG : p :" << p << " n : " << n << std::endl;
-	n = this->trim(n);
+	Tester.trim(n);
 
-	p = this->trim(p);
-	if (!this->isdigit(n) || !this->isdigit(p))
+	Tester.trim(p);
+	Tester.getsign(n);
+
+	if (!Tester.isdigit(n) || !Tester.isdigit(p))
 	{
 		this->error = true;
 		std::cout << "their is an error in the entrie near : " << std::endl;
-		//std::cout << "DEBUG : p :" << p << " n : " << n << std::endl;
 		return -1;
 	}
 
-		//std::cout << "1--> DEBUG : p :" << p << " n : " << n << std::endl;
 
 	p1 = atoi(p.c_str());
 	if (n[1] == ' ')
 		n = n.erase (1, 1);
 	n1 = std::strtod(n.c_str(), NULL);
-		//std::cout << "2--> DEBUG : p :" << p1 << " n : " << n1 << " b: " << b<< std::endl;
 	(b) ? n1 *= -1 : n1 ;
 	if (Parser::debug)
 		std::cout << "=> X^" << p1 << " * (" << this->p[p1] << " + " << n1 << ")" << std::endl;

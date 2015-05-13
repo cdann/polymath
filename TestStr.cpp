@@ -41,7 +41,6 @@ bool TestStr::isdigit(std::string str)
 	}
 	if (!in)
 		return false;
-	//std::cout << "ppppppp: " << str << std::endl;
 	return true;
 }
 
@@ -64,22 +63,18 @@ void TestStr::getsign(std::string & str)//parcourir le debut jusqu'au premier ch
 
 	ret = str;
 
-	//std::cout << str;
 
 	while ((str[i] == '+' || str[i] == '-' || str[i] == ' ') && i < str.length())
 	{
-		//\\std::cout << "$$" << str[i];
 		if (str[i] == '+' || str[i] == '-' )
 		{
 			if (b == true)
 			{
-				//std::cout << "PLOOOOP" << std::endl;
 				sign[1] = str[i];
 				if ((sign[0] == '+' && sign[1] == '+') || (sign[0] == '-' && sign[1] == '-'))
 					ret = '+' + str.substr(i + 1, str.length() - i -1);
 				else
 					ret = '-' + str.substr(i + 1, str.length() - i -1);
-		//std::cout << "UUUUUUUU" << std::endl;
 			}
 			else
 			{
@@ -88,7 +83,6 @@ void TestStr::getsign(std::string & str)//parcourir le debut jusqu'au premier ch
 			}
 
 		}
-		//std::cout << "PLOUUUUUF " << i << str[i] << " \\ " << str.length() << std::endl;
 		i++;
 	}
 	str = ret;
