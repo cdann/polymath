@@ -64,6 +64,8 @@ void Parser::splitByPart(std::string str)
 			//std::cout << "->" << member << " " << s << std::endl;
 
 			c = i;
+			if (s == true || !this->isonlyspace(member))
+				this->extractMember(member, b);
 			if (*it == '=')
 			{
 				s = false;
@@ -75,8 +77,6 @@ void Parser::splitByPart(std::string str)
 				c ++;
 				b = true;
 			}
-			else if (s == true || !this->isonlyspace(member))
-				this->extractMember(member, b);
 		}
 		else if (*it != ' ' && s == false)
 		{
@@ -120,6 +120,7 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
   			}
   			else if (found == str.length())
 			{
+				//std::cout << "passe la st: " << p << std::endl;
 				Poly::setSimpleForm();
 				p = "1";
 			}
@@ -137,12 +138,12 @@ int Parser::extractMember(std::string str, bool b)// si le bool est a 0 premiere
   		if (found != std::string::npos)
   		{
   			n = (found == 0) ? "1" : str.substr(0, found);
-	  		//std::cout << " str : " << found +2 << " size : " << str.length();
-  			p = ((found + 2) == str.length()) ?  "1" : str.substr(found +2, str.length());
+	  		//std::cout << " str : " <<str << " / " << found +2 << " size : " << str.length();
+  			p = str.substr(found +2, str.length());
   			if ((found = p.find("^")) != std::string::npos)
   				p = p.substr(found +1, p.length());
-
-
+  			if (this->isonlyspace(p))
+  				p = "1";
   		}
   		else
   		{
@@ -215,20 +216,23 @@ int Parser::addMember(std::string n,std::string p, bool b)
 	{
 		this->error = true;
 		std::cout << "their is an error in the entrie near : " << std::endl;
-		std::cout << "DEBUG : p :" << p << " n : " << n << std::endl;
+		//std::cout << "DEBUG : p :" << p << " n : " << n << std::endl;
 		return -1;
 	}
 
+		//std::cout << "1--> DEBUG : p :" << p << " n : " << n << std::endl;
 
 	p1 = atoi(p.c_str());
 	if (n[1] == ' ')
 		n = n.erase (1, 1);
 	n1 = std::strtod(n.c_str(), NULL);
+		//std::cout << "2--> DEBUG : p :" << p1 << " n : " << n1 << " b: " << b<< std::endl;
 	(b) ? n1 *= -1 : n1 ;
 	if (Parser::debug)
 		std::cout << "=> X^" << p1 << " * (" << this->p[p1] << " + " << n1 << ")" << std::endl;
 	this->p[p1] += n1;
 	(p1 > this->degree) ? this->degree = p1 : this->degree;
+
 	return p1;
 }
 
